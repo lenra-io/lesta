@@ -9,11 +9,15 @@ const args = process.argv.slice(2);
 run(args[0] || 'express');
 
 async function run(generator) {
-    // import lesta.conf.js that can override the elements
-    const customConfigurator = await import(join(cwd, 'lesta.configurator.js')).catch({});
-    const configurator = {...defaultConfigurator};
-
-    // TODO: merge configurations
+    const customConfigurator = await import(join(cwd, 'lesta.conf.js')).catch({});
+    const configurator = Object.fromEntries(
+        Object.keys(defaultConfigurator)
+            .map(key => {
+                value = key in customConfigurator ? customConfigurator[key] : defaultConfigurator[key];
+                if (key=='generators') value = {...defaultConfigurator.generators, ...(customConfigurator.generators || {})};
+                return [key, value]
+            })
+    );
 
     const managers = configurator.getManagers();
     const website = new Website(managers);

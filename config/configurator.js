@@ -6,6 +6,7 @@ import RobotsManager from '../lib/RobotsManager.js';
 import SitemapManager from '../lib/SitemapManager.js';
 import { getConfiguration, loadJsonFile, mergeDeep } from '../lib/utils.js';
 import { join } from 'path';
+import * as defaultConfig from './default-configuration.json';
 
 /**
  * Returns the website path managers
@@ -45,46 +46,6 @@ export const generators = {
  * @returns {Promise<Configuration>}
  */
 export async function getConfiguration() {
-    const defaultConfig = {
-        "staticDir": "src/static",
-        "i18nDir": "src/i18n",
-        "viewsDir": "src/views",
-        "buildDir": "build",
-        "languages": [],
-        "enableDefaultLanquage": false,
-        "port": 8081,
-        "robots": {
-            "rules": [
-                {
-                    "userAgent": "*",
-                    "crawlers": [
-                        {
-                            "type": "Allow",
-                            "path": "/"
-                        }
-                    ]
-                }
-            ]
-        },
-        "nginx": {
-            "rewriteRules": [],
-            "additionalContentSecurityPolicies": {},
-            "gzipTypes": [
-                "text/plain",
-                "text/css",
-                "text/js",
-                "text/xml",
-                "text/javascript",
-                "application/javascript",
-                "application/x-javascript",
-                "application/json",
-                "application/xml",
-                "application/rss+xml",
-                "image/svg+xml"
-            ],
-            "expires": "10d"
-        }
-    };
     const cwd = process.cwd();
     const packageConfig = loadJsonFile(join(cwd, 'package.json'))
         .then(packageContent => packageContent.lesta)
