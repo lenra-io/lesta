@@ -5,6 +5,7 @@ import PathManager from '../lib/PathManager.js';
 import RobotsManager from '../lib/RobotsManager.js';
 import SitemapManager from '../lib/SitemapManager.js';
 import { getConfiguration, loadJsonFile, mergeDeep } from '../lib/utils.js';
+import { join } from 'path';
 
 /**
  * Returns the website path managers
