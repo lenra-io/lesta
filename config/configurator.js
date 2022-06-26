@@ -6,7 +6,6 @@ import RobotsManager from '../lib/RobotsManager.js';
 import SitemapManager from '../lib/SitemapManager.js';
 import { loadJsonFile, mergeDeep } from '../lib/utils.js';
 import { join } from 'path';
-import * as defaultConfig from './default-configuration.json';
 
 /**
  * Returns the website path managers

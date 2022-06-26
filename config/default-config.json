@@ -5,7 +5,7 @@
     "buildDir": "build",
     "languages": [],
     "enableDefaultLanquage": false,
-    "port": 8081,
+    "port": 8080,
     "robots": {
         "rules": [
             {

@@ -3,17 +3,20 @@
 import * as defaultConfigurator from '../config/configurator.js';
 import Website from '../lib/Website.js';
 import { join } from 'path';
+import { existsSync } from 'fs';
 
 const args = process.argv.slice(2);
+const cwd = process.cwd();
 
 run(args[0] || 'express');
 
 async function run(generator) {
-    const customConfigurator = await import(join(cwd, 'lesta.conf.js')).catch({});
+    const customConfPath = join(cwd, 'lesta.conf.js');
+    const customConfigurator = existsSync(customConfPath)  ? await import(customConfPath) : {};
     const configurator = Object.fromEntries(
         Object.keys(defaultConfigurator)
             .map(key => {
-                value = key in customConfigurator ? customConfigurator[key] : defaultConfigurator[key];
+                var value = key in customConfigurator ? customConfigurator[key] : defaultConfigurator[key];
                 if (key=='generators') value = {...defaultConfigurator.generators, ...(customConfigurator.generators || {})};
                 return [key, value]
             })
@@ -26,5 +29,5 @@ async function run(generator) {
     const gen = configurator.generators[generator];
     console.log("Starting generation");
     await website.generate(gen);
-    buildPromise.then(() => console.log("Website generated"));
+    console.log("Website generated");
 }
