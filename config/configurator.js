@@ -4,7 +4,7 @@ import PageManager from '../lib/PageManager.js';
 import PathManager from '../lib/PathManager.js';
 import RobotsManager from '../lib/RobotsManager.js';
 import SitemapManager from '../lib/SitemapManager.js';
-import { getConfiguration, loadJsonFile, mergeDeep } from '../lib/utils.js';
+import { loadJsonFile, mergeDeep } from '../lib/utils.js';
 import { join } from 'path';
 import * as defaultConfig from './default-configuration.json';
 
@@ -47,7 +47,8 @@ export const generators = {
  */
 export async function getConfiguration() {
     const cwd = process.cwd();
-    const packageConfig = loadJsonFile(join(cwd, 'package.json'))
+    const defaultConfig = await loadJsonFile(new URL('../config/default-config.json', import.meta.url));
+    const packageConfig = await loadJsonFile(join(cwd, 'package.json'))
         .then(packageContent => packageContent.lesta)
         .catch(e => {});
     return mergeDeep({}, defaultConfig, packageConfig);

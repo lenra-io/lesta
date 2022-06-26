@@ -20,7 +20,7 @@ async function run(generator) {
     );
 
     const managers = configurator.getManagers();
-    const website = new Website(managers);
+    const website = new Website(await configurator.getConfiguration(), managers);
 
     if (!generator in configurator.generators) throw new Error(`The '${generator}' generator is not found`, Object.keys(configurator.generators));
     const gen = configurator.generators[generator];
