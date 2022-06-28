@@ -11,7 +11,7 @@ const cwd = process.cwd();
 run(args[0] || 'express');
 
 async function run(generator) {
-    const customConfPath = join(cwd, 'lesta.conf.js');
+    const customConfPath = join(cwd, 'lesta.config.js');
     const customConfigurator = existsSync(customConfPath)  ? await import(customConfPath) : {};
     const configurator = Object.fromEntries(
         Object.keys(defaultConfigurator)
