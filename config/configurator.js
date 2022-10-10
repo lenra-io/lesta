@@ -1,4 +1,4 @@
-import expressServer from '../lib/ExpressServer.js';
+import expressServer from '../lib/expressServer.js';
 import nginxBuilder from '../lib/nginxBuilder.js';
 import PageManager from '../lib/PageManager.js';
 import PathManager from '../lib/PathManager.js';
