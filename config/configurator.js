@@ -34,7 +34,7 @@ export const generators = {
  * @property {boolean} enableDefaultLanquage Define if the first language is the default. If true, the page path will use this default language. If false, the base path will use the user language priority
  * @property {'suffix' | 'subdir' | null} translationStrategy Define the strategy to manage page translation
  *  * suffix: will add the language as suffix of file name before the extension. For exemple, `index.html` page path for english language will be `index.en.html`
- *  * subdir: will make the pages accessible in a subdirectoriy for the language. For exemple, `index.html` page path for english language will be `en/index.html`
+ *  * subdir: will make the pages accessible in a subdirectory for the language. For exemple, `index.html` page path for english language will be in `en/index.html`
  *  * null: the page path will be the same for all languages
  * @property {integer} port The listen server port
  * @property {import('../lib/RobotsManager.js').RobotsConfiguration} robots The robots.txt manager configuration
