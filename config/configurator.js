@@ -38,6 +38,7 @@ export const generators = {
  *  * null: the page path will be the same for all languages
  * @property {integer} port The listen server port
  * @property {import('../lib/RobotsManager.js').RobotsConfiguration} robots The robots.txt manager configuration
+ * @property {import('../lib/nginxBuilder.js').NginxConfiguration} nginx The nginx generator configuration
  */
 
 /**
