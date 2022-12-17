@@ -7,7 +7,7 @@ The Lenra's static website framework
 
 ```bash
 # Install the depedency
-npm i @lenra/lesta
+npm i lenra-io/lesta
 # create the view directory
 mkdir -p src/views
 # create your first view file
