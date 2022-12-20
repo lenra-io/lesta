@@ -31,7 +31,7 @@
 </div>
 
 
-This framework fully configurable and let use your own server or even page renderer.
+This framework is fully configurable and let you use your own server or even page renderer.
 To understand how to configure your project, look at the [configuration section](#configure-lesta).
 
 Look at the [framework section](#framework) to better understand how it works.
@@ -41,7 +41,7 @@ Look at the [framework section](#framework) to better understand how it works.
 To create your first website follow the next steps:
 
 ```bash
-# Install the depedency
+# Install the dependency
 npm i lenra-io/lesta
 # create the view directory
 mkdir -p src/views
@@ -74,7 +74,7 @@ Lesta is made to be fully configurable. To make it easier for the users, there a
 
 ### JSON configuration
 
-The JSON configuration let define many things, like the file paths.
+The JSON configuration allows you to define many things, like the file paths.
 It can be defined in a `lesta` property of your `package.json` file.
 There is [default values](./config/default-config.json) for the configurations:
 
@@ -96,13 +96,13 @@ Many other configuration keys can be defined to manage new components configurat
 ### JavaScript configuration
 
 Lesta can also handle new elements by defining a Lesta configurator in the `lesta.config.js` file at the base of the project.
-The elements defined in this file would override the [default configurators](./config/configurator.js) ones (exected for the generators map which is merged).
+The elements defined in this file would override the [default configurators](./config/configurator.js) ones (except for the generators map which is merged).
 
 Here are the overridable elements:
 
 - `getManagers`: returns the website [PathManagers](#pathmanager)
 - `generators`: the generators map. The keys of this map are the allowed values by the [Lesta CLI](#cli).
-- `getConfiguration`: resturns the website [Configuration](#json-configuration)
+- `getConfiguration`: returns the website [Configuration](#json-configuration)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -115,7 +115,7 @@ The framework is using many components to handle the generation of the websites.
 It's the main element of the framework.
 A Website needs a [Configuration](#json-configuration) and a [PathManager](#pathmanager) list.
 
-To start or build a Website, just call the `generate` method with the desired Genetor.
+To start or build a Website, just call the `generate` method with the desired Generator.
 
 ### PathManager
 
@@ -124,13 +124,13 @@ A path manager is based on two methods:
 - `build`: builds the content of the given path
 
 There is three built-in PathManagers:
-- PageManager: handle pages. See the [dedicated section](#pagemanager) to learn more.
-- RobotsManager: handle the search engines `robots.txt` files.
-- SitemapManager: handle the search engines sitemap files.
+- PageManager: handles pages. See the [dedicated section](#pagemanager) to learn more.
+- RobotsManager: handles the search engines `robots.txt` files.
+- SitemapManager: handles the search engines sitemap files.
 
 #### PageManager
 
-It handle the website pages for a given rendering techology.
+It handles the website pages for a given rendering technology.
 A Website can have many PageManagers.
 
 A page manager needs a `pageLister` function that lists the website pages and a `pageRenderer` function that renders the pages.
@@ -139,7 +139,7 @@ By default, the PageManager will handle `pug` files using the pugPageLister and 
 
 ### Generator
 
-It's a function that will use the Configuration and the PathManagers to start or generate the Website.
+It is a function that will use the Configuration and the PathManagers to start or generate the Website.
 
 Here are the built-in Generators:
 - express: starts an Express server to serve the Website
