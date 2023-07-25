@@ -1,4 +1,5 @@
 {
+    "propertiesPath": "src/properties.json",
     "staticDir": "src/static",
     "i18nDir": "src/i18n",
     "viewsDir": "src/views",

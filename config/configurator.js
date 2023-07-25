@@ -26,6 +26,7 @@ export const generators = {
 
 /**
  * @typedef Configuration
+ * @property {string} propertiesPath The project properties file path. This file will be loaded as a JSON object and will be available in the page content.
  * @property {string} staticDir The static files base directory. The content of this directory will be copied as it is.
  * @property {string} i18nDir The internationalisation files base directory. The directory can contain a file by managed language (example: 'en.js' for english). It can also contain a 'common.js' file to define properties common to all languages
  * @property {string} viewsDir The view files base directory
