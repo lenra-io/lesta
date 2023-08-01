@@ -1,4 +1,4 @@
-import { loadJsonFile } from './utils';
+import { loadJsonFile } from './utils.js'
 
 export const commonConf: string = 'properties';
 

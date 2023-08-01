@@ -1,4 +1,4 @@
-import PathManager from './PathManager';
+import PathManager from './PathManager.js'
 
 /**
  * @typedef robotsCrawler

@@ -1,5 +1,5 @@
-import { Configuration } from '../config/configurator';
-import PathManager from './PathManager';
+import { Configuration } from '../config/configurator.js'
+import PathManager from './PathManager.js'
 
 /**
  * Serve a website

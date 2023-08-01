@@ -1,11 +1,11 @@
-import { Configuration } from "../config/configurator.js";
+import { Configuration } from "../config/configurator.js"
 import { join, relative, dirname, extname } from "path";
 import { mkdirSync } from 'fs';
 import { copyFile, writeFile } from 'fs/promises';
 import { minify } from 'minify';
-import { cssMinify } from './cssMinify.js';
-import { getFilesRecursively, mergeDeep } from '../lib/utils.js';
-import PathManager from "./PathManager.js";
+import { cssMinify } from './cssMinify.js'
+import { getFilesRecursively, mergeDeep } from '../lib/utils.js'
+import PathManager from "./PathManager.js"
 
 export interface NginxConfiguration {
   rewriteRules: RewriteRule[];
@@ -108,8 +108,7 @@ function generateNginxConf(configuration: Configuration) {
 
   // Detect user's prefered language
   const detectLang = configuration.languages.length > 1 && (!configuration.translationStrategy || !configuration.enableDefaultLanquage);
-  // const redirectToLangPage = detectLang && !configuration.enableDefaultLanquage;
-  console.log('detectLang', detectLang, configuration.languages, configuration.translationStrategy, configuration.enableDefaultLanquage)
+  const redirectToLangPage = detectLang && !configuration.enableDefaultLanquage;
   if (detectLang) {
     addLine(buffer, tabLevel++, 'map $http_accept_language $lang {');
     addLine(buffer, tabLevel, `default ${configuration.languages[0]}`);
@@ -160,9 +159,9 @@ function generateNginxConf(configuration: Configuration) {
       addLine(buffer, tabLevel, `expires ${configuration.nginx.expires};`);
 
       // TODO: manage i18n strategy redirection
-      // if (redirectToLangPage) {
-
-      // }
+      if (redirectToLangPage) {
+        console.log("Define redirection to lang page");
+      }
 
 
       configuration.nginx.rewriteRules

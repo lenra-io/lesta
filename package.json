@@ -14,7 +14,8 @@
     "lib"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy",
+    "copy": "cp src/config/default-config.json dist/config/default-config.json && cp src/lib/cssMinify.js dist/lib/cssMinify.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Lenra",
@@ -26,7 +27,6 @@
     "i18next-resources-to-backend": "^1.1.4",
     "minify": "^9.1.0",
     "pug": "^3.0.2",
-    "ts-transformer-keys": "^0.4.4",
     "typescript": "^5.1.6"
   },
   "devDependencies": {

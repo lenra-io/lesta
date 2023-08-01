@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import Website from '../lib/Website';
+import Website from '../lib/Website.js'
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { Configurator, ConfiguratorKeys, defaultConfigurator } from '../config/configurator.js';
+import { Configurator, defaultConfigurator } from '../config/configurator.js'
 
 const args: string[] = process.argv.slice(2);
 const cwd: string = process.cwd();

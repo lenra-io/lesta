@@ -1,9 +1,9 @@
-import { getFilesRecursively } from './utils';
-import Page from './Page';
+import { getFilesRecursively } from './utils.js'
+import Page from './Page.js'
 import { join, relative } from 'path';
 import { readFileSync } from 'fs';
 import fm from 'front-matter';
-import { Configuration } from '../config/configurator';
+import { Configuration } from '../config/configurator.js'
 
 const languageFileRegex = /^(([a-z]{2})\/(.+)|(.+)[.]([a-z]{2}))([.]pug)$/;
 

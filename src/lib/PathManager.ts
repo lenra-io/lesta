@@ -1,4 +1,4 @@
-import { Configuration } from '../config/configurator';
+import { Configuration } from '../config/configurator.js'
 
 export default abstract class PathManager {
     /**

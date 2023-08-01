@@ -2,22 +2,20 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 import i18next from 'i18next';
 import resourcesToBackend from 'i18next-resources-to-backend';
-import { loadJsonFile } from './utils';
-import { Configuration } from '../config/configurator.js';
+import { loadJsonFile } from './utils.js'
+import { Configuration } from '../config/configurator.js'
 
 const langFileRegex = /^([a-z]{2})[.]json$/;
 export const defaultNamespace = 'translation';
 
-/**
- * @typedef strategy
- * @property {RegExp} findLanguageRegex
- * @property {number} findLanguagePosition
- */
+interface Strategy {
+    findLanguageRegex: RegExp;
+    findLanguagePosition: number;
+}
 
-/**
- * @type {Record<string, strategy>}
- */
-const translationStrategies: Record<string, any> = {
+// TODO: if no default language, use use x-default: https://developers.google.com/search/docs/specialty/international/localized-versions
+
+const translationStrategies: Record<string, Strategy> = {
     suffix: {
         findLanguageRegex: /^(.+)[.]([a-z]{2})([.]html)$/,
         findLanguagePosition: 2
@@ -61,7 +59,7 @@ export async function init(configuration: Configuration): Promise<void> {
 export async function getManagedLanguages(i18nDir: string): Promise<string[]> {
     return readdir(i18nDir)
         .then(files => files
-            .map(file => file.match(langFileRegex))
+            .map(file => langFileRegex.exec(file))
             .filter(match => match)
             .map(match => match[1])
         );
@@ -91,7 +89,7 @@ export function extractPathLanguage(configuration: Configuration, path: string):
     if (!configuration.translationStrategy) return defaultReturn;
     const strategy = translationStrategies[configuration.translationStrategy];
     if (!strategy) throw new Error(`Not managed strategy '${configuration.translationStrategy}'`);
-    const match = path.match(strategy.findLanguageRegex);
+    const match = strategy.findLanguageRegex.exec(path);
     if (!match) return defaultReturn;
     const parts = match.slice(1);
     let [language] = parts.splice(strategy.findLanguagePosition - 1, 1);

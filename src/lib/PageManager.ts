@@ -1,11 +1,11 @@
-import { extractPathLanguage, init } from './i18n';
-import PathManager from './PathManager'
-import Page from './Page';
-import pugPageLister from './pugPageLister';
-import pugPageRenderer from './pugPageRenderer';
-import { loadProperties } from './properties';
+import { extractPathLanguage, init } from './i18n.js'
+import PathManager from './PathManager.js'
+import Page from './Page.js'
+import pugPageLister from './pugPageLister.js'
+import pugPageRenderer from './pugPageRenderer.js'
+import { loadProperties } from './properties.js'
 import i18next from 'i18next';
-import { Configuration } from '../config/configurator';
+import { Configuration } from '../config/configurator.js'
 
 /**
  * @callback pageLister List the website pages

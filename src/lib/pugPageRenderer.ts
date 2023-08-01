@@ -1,11 +1,11 @@
 import * as pug from 'pug';
-import Page from './Page';
+import Page from './Page.js'
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { mergeDeep } from './utils';
+import { mergeDeep } from './utils.js'
 import fm from 'front-matter';
 import i18next from 'i18next';
-import { Configuration } from '../config/configurator';
+import { Configuration } from '../config/configurator.js'
 
 /**
  * Render a pug website page

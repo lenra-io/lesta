@@ -1,15 +1,14 @@
-import expressServer from '../lib/expressServer';
-import nginxBuilder from '../lib/nginxBuilder';
-import { NginxConfiguration } from '../lib/nginxBuilder.js';
-import PathManager from '../lib/PathManager';
-import RobotsManager from '../lib/RobotsManager';
-import { RobotsConfiguration } from '../lib/RobotsManager.js';
-import SitemapManager from '../lib/SitemapManager';
-import { loadJsonFile, mergeDeep } from '../lib/utils';
+import expressServer from '../lib/expressServer.js'
+import nginxBuilder from '../lib/nginxBuilder.js'
+import { NginxConfiguration } from '../lib/nginxBuilder.js'
+import PathManager from '../lib/PathManager.js'
+import RobotsManager from '../lib/RobotsManager.js'
+import { RobotsConfiguration } from '../lib/RobotsManager.js'
+import SitemapManager from '../lib/SitemapManager.js'
+import { loadJsonFile, mergeDeep } from '../lib/utils.js'
 import { join } from 'path';
-import { generator } from '../lib/Website.js';
-import PageManager from '../lib/PageManager.js';
-import { keys } from 'ts-transformer-keys';
+import { generator } from '../lib/Website.js'
+import PageManager from '../lib/PageManager.js'
 
 export interface Configurator {
     /**
@@ -28,8 +27,6 @@ export interface Configurator {
      */
     generators: GeneratorMap;
 }
-
-export const ConfiguratorKeys = keys<Configurator>();
 
 
 export const defaultConfigurator: Configurator = {
