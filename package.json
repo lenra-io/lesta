@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "description": "A low carbon framework for static multilingual website creation",
   "type": "module",
-  "main": "lib/index.js",
-  "types": "lib/index",
+  "types": "dist/lib/index.d.ts",
+  "main": "dist/lib/index.js",
   "bin": {
-    "lesta": "bin/lesta.js"
+    "lesta": "dist/bin/lesta.js"
   },
   "files": [
     "bin",
@@ -14,6 +14,7 @@
     "lib"
   ],
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Lenra",
@@ -24,7 +25,9 @@
     "i18next": "^23.2.11",
     "i18next-resources-to-backend": "^1.1.4",
     "minify": "^9.1.0",
-    "pug": "^3.0.2"
+    "pug": "^3.0.2",
+    "ts-transformer-keys": "^0.4.4",
+    "typescript": "^5.1.6"
   },
   "devDependencies": {
     "@types/minify": "^9.0.0",
@@ -41,11 +44,16 @@
     "framework",
     "static",
     "website",
+    "low-carbon",
     "pug",
-    "low-carbon"
+    "express",
+    "nginx"
   ],
   "bugs": {
     "url": "https://github.com/lenra-io/lesta/issues"
   },
-  "homepage": "https://github.com/lenra-io/lesta#readme"
+  "homepage": "https://github.com/lenra-io/lesta#readme",
+  "jest": {
+    "preset": "ts-jest"
+  }
 }
