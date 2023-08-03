@@ -1,4 +1,6 @@
-import PathManager from './PathManager.js'
+import { Configuration } from '../config/configurator';
+import PathManager, { ResourceMap } from './PathManager.js'
+import FileResource from './resources/File.js';
 
 /**
  * Build sitemap files
@@ -12,18 +14,16 @@ export default class SitemapManager extends PathManager {
      * @param {import('../config/configurator').Configuration} configuration 
      * @returns {Promise<string[]>}
      */
-    getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<string[]> {
-        return Promise.resolve(['sitemap.txt']);
+    getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<ResourceMap> {
+        const path: string = 'sitemap.txt'
+        return Promise.resolve(Object.fromEntries([[path, new FileResource(path)]]));
     }
 
     /**
      * Builds the content of the given file
-     * @param {import('../config/configurator').Configuration} configuration 
-     * @param {string} path 
-     * @param {*} options 
      */
-    build(configuration: import('../config/configurator').Configuration, path: string, { paths }: { paths: string[] }): Promise<string> {
-        if (path != 'sitemap.txt') throw new Error("Not implemented");
+    build(configuration: Configuration, file: FileResource, { paths }: { paths: string[] }): Promise<string> {
+        if (file.path != 'sitemap.txt') throw new Error("Not implemented");
         return Promise.resolve(
             paths
                 // TODO: manage disabled content

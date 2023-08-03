@@ -23,11 +23,14 @@ export default function expressServer(configuration: Configuration, managers: Pa
             console.log("Request", path);
             let manager: PathManager | null = null;
             const paths: string[] = [];
+            let resource;
             for (const m of managers) {
-                const managedPaths = await m.getManagedPaths(configuration);
+                const resourceMap = await m.getManagedPaths(configuration);
+                const managedPaths = Object.keys(resourceMap);
                 if (managedPaths.includes(path)) {
                     if (manager != null) throw new Error(`The '${path}' path have been found in two managers: ${manager} and ${m}`);
                     manager = m;
+                    resource = resourceMap[path];
                 }
                 paths.push(...managedPaths);
             }
@@ -35,7 +38,7 @@ export default function expressServer(configuration: Configuration, managers: Pa
                 res.sendStatus(404);
                 return;
             }
-            let content = await manager.build(configuration, path, { paths });
+            let content = await manager.build(configuration, resource, { paths });
             // Replace server variables
             const baseUrl = `${req.protocol}://${req.headers.host}`;
             const currentUrl = `${baseUrl}${req.originalUrl}`;

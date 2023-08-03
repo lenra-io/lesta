@@ -1,12 +1,13 @@
+import Resource from "./Resource.js";
+
 /**
  * @class
  * The website page definition
  */
-export default class Page {
-    path: string;
+export default class Page extends Resource {
     href: string;
     view: string;
-    langViews: {[key: string]: string};
+    langViews: { [key: string]: string };
     properties: any;
 
     /**
@@ -15,8 +16,8 @@ export default class Page {
      * @param {Object.<string, string>} langViews The language specific views
      * @param {any} properties The page custom properties
      */
-    constructor(path: string, view: string, langViews: {[key: string]: string}, properties: any) {
-        this.path = path;
+    constructor(path: string, view: string, langViews: { [key: string]: string }, properties: any) {
+        super(path);
         this.href = path.replace(/(^|\/)index.html$/, `$1`);
         this.view = view;
         this.langViews = langViews;

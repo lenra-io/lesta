@@ -1,11 +1,15 @@
 import { extractPathLanguage, init } from './i18n.js'
-import PathManager from './PathManager.js'
-import Page from './Page.js'
+import PathManager, { ResourceMap } from './PathManager.js'
+import Page from './resources/Page.js'
 import pugPageLister from './pugPageLister.js'
 import pugPageRenderer from './pugPageRenderer.js'
 import { loadProperties } from './properties.js'
 import i18next from 'i18next';
 import { Configuration } from '../config/configurator.js'
+import TranslatedPage from './resources/TranslatedPage.js'
+import Redirection from './resources/Redirection.js'
+
+const X_DEFAULT = 'x-default';
 
 /**
  * @callback pageLister List the website pages
@@ -63,26 +67,17 @@ export default class PageManager extends PathManager {
      * @param {import('../config/configurator').Configuration} configuration 
      * @returns {Promise<string[]>}
      */
-    async getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<string[]> {
+    async getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<ResourceMap> {
         await init(configuration);
         this.#_pages = await this.pageLister(configuration);
 
         // manage translation paths depending on the strategy
         if (configuration.languages.length > 0) {
-            switch (configuration.translationStrategy) {
-                case 'subdir':
-                    return configuration.languages.flatMap((lang, i) => {
-                        if (i == 0 && configuration.enableDefaultLanquage) return this.#_pages.map(p => p.path);
-                        return this.#_pages.map(p => `${lang}/${p.path}`);
-                    });
-                case 'suffix':
-                    return configuration.languages.flatMap((lang, i) => {
-                        if (i == 0 && configuration.enableDefaultLanquage) return this.#_pages.map(p => p.path);
-                        return this.#_pages.map(p => p.path.replace(/(^.*[^/]+)([.][a-z0-9]+)$/, `$1.${lang}$2`));
-                    });
-            }
+            const defaultLanguage = configuration.enableDefaultLanquage ? configuration.languages[0] : X_DEFAULT;
+            const languages = configuration.enableDefaultLanquage ? configuration.languages : [X_DEFAULT, ...configuration.languages];
+            return mapPagesResources(this.#_pages, configuration.translationStrategy, defaultLanguage, languages);
         }
-        return this.#_pages.map(p => p.path);
+        return Object.fromEntries(this.#_pages.map(p => [p.path, p]));
     }
 
     /**
@@ -91,11 +86,10 @@ export default class PageManager extends PathManager {
      * @param {string} path 
      * @param {*} options 
      */
-    async build(configuration: import('../config/configurator').Configuration, path: string, options: any): Promise<string> {
-        const pathLanguage = extractPathLanguage(configuration, path);
-
-        if (!pathLanguage.language) {
-            pathLanguage.language = configuration.languages[0];
+    async build(configuration: import('../config/configurator').Configuration, page: Page, options: any): Promise<string> {
+        let language = configuration.languages[0];
+        if (page instanceof TranslatedPage) {
+            language = page.lang;
         }
 
         const pageMap = Object.fromEntries(
@@ -103,7 +97,7 @@ export default class PageManager extends PathManager {
                 .filter(p => p.path.endsWith('.html'))
                 .map(p => [p.href, p])
         );
-        const page = this.#_pages.find(p => p.path == pathLanguage.path);
+        // const page = this.#_pages.find(p => p.path == pathLanguage.path);
         const properties = await loadProperties(configuration.propertiesPath);
         const basicPath = page.path.replace(/[.]html$/, '');
         options = {
@@ -116,12 +110,32 @@ export default class PageManager extends PathManager {
                 href: page.href,
                 basicPath
             },
-            language: pathLanguage.language,
+            language: language,
             languages: configuration.languages
         };
-        await i18next.changeLanguage(pathLanguage.language);
+        await i18next.changeLanguage(language);
         i18next.setDefaultNamespace(basicPath);
 
         return await this.pageRenderer(configuration, page, options);
     }
+}
+
+function mapPagesResources(pages: Page[], strategy: string, defaultLanguage: string, languages: string[]): ResourceMap {
+    return Object.fromEntries(languages.map(lang => {
+        if (lang === defaultLanguage) {
+            return pages.map(p => {
+                const resource = lang === X_DEFAULT ? new Redirection(p.path) : new TranslatedPage(p.path, p, lang);
+                return [p.path, resource]
+            });
+        }
+        return pages.map(p => {
+            const path = getPathForLang(p.path, lang, strategy);
+            return [path, new TranslatedPage(path, p, lang)]
+        });
+    }).flat(1));
+}
+
+function getPathForLang(path: string, lang: string, strategy: string): string {
+    if (strategy === 'subdir') return `${lang}/${path}`;
+    return path.replace(/(^.*[^/]+)([.][a-z0-9]+)$/, `$1.${lang}$2`);
 }

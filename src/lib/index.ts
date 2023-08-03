@@ -1,6 +1,6 @@
 export { default as Website } from './Website';
 export { default as PathManager } from './PathManager';
-export { default as Page } from './Page';
+export { default as Page } from './resources/Page.js';
 export { default as PageManager } from './PageManager';
 export { default as RobotsManager } from './RobotsManager';
 export { default as SitemapManager } from './SitemapManager';

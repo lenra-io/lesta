@@ -1,5 +1,5 @@
 import { getFilesRecursively } from './utils.js'
-import Page from './Page.js'
+import Page from './resources/Page.js'
 import { join, relative } from 'path';
 import { readFileSync } from 'fs';
 import fm from 'front-matter';

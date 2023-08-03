@@ -1,4 +1,6 @@
-import PathManager from './PathManager.js'
+import { Configuration } from '../config/configurator';
+import PathManager, { ResourceMap } from './PathManager.js'
+import FileResource from './resources/File.js';
 
 /**
  * @typedef robotsCrawler
@@ -42,18 +44,19 @@ export default class RobotsManager extends PathManager {
      * @param {import('../config/configurator').Configuration} configuration 
      * @returns {Promise<string[]>}
      */
-    getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<string[]> {
-        return Promise.resolve(['robots.txt']);
+    getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<ResourceMap> {
+        const path: string = 'robots.txt';
+        return Promise.resolve(Object.fromEntries([[path, new FileResource(path)]]));
     }
 
     /**
      * Builds the content of the given file
-     * @param {import('../config/configurator').Configuration & {robots: RobotsConfiguration}} configuration 
-     * @param {string} path 
-     * @param {*} options 
+     * @param configuration 
+     * @param _file 
+     * @param _options 
      */
-    async build(configuration: import('../config/configurator').Configuration & { robots: RobotsConfiguration }, path: string, options: any) {
-        if (path != 'robots.txt') throw new Error("Not implemented");
+    async build(configuration: Configuration, file: FileResource, _options: any) {
+        if (file.path != 'robots.txt') throw new Error("Not implemented");
         let content = configuration.robots.rules
             .map(rule => 'User-agent: ' + rule.userAgent + '\n' +
                 rule.crawlers.map(crawler => `${crawler.type}: ${crawler.path}`).join('\n') +

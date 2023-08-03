@@ -1,5 +1,5 @@
 import * as pug from 'pug';
-import Page from './Page.js'
+import Page from './resources/Page.js'
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { mergeDeep } from './utils.js'

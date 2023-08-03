@@ -59,27 +59,28 @@ export default async function nginxBuilder(configuration: Configuration, manager
       }
     });
 
-  const managerPaths = await Promise.all(
+  const managerResourceMap = await Promise.all(
     managers.map(async manager => ({
       manager,
-      managedPaths: await manager.getManagedPaths(configuration)
+      resourceMap: await manager.getManagedPaths(configuration)
     }))
   );
-  const paths = managerPaths.flatMap(({ managedPaths }) => managedPaths);
+  const paths = managerResourceMap.flatMap(({ resourceMap }) => Object.keys(resourceMap));
   const options = { paths };
 
   // Build the managers paths
   promises.push.apply(promises,
-    managerPaths.flatMap(({ manager, managedPaths }) =>
-      managedPaths.map(path => {
-        const destPath = join(wwwPath, path);
-        mkdirSync(dirname(destPath), { recursive: true });
-        return manager.build(configuration, path, options)
-          .then(content =>
-            path.endsWith('.html') ? minify.html(content) : content
-          )
-          .then(content => writeFile(destPath, content))
-      })
+    managerResourceMap.flatMap(({ manager, resourceMap }) =>
+      Object.entries(resourceMap)
+        .map(([path, resource]) => {
+          const destPath = join(wwwPath, path);
+          mkdirSync(dirname(destPath), { recursive: true });
+          return manager.build(configuration, resource, options)
+            .then(content =>
+              path.endsWith('.html') ? minify.html(content) : content
+            )
+            .then(content => writeFile(destPath, content))
+        })
     )
   );
 
