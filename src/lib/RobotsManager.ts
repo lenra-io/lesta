@@ -1,6 +1,8 @@
 import { Configuration } from '../config/configurator';
-import PathManager, { ResourceMap } from './PathManager.js'
+import PathManager from './PathManager.js';
+import { SITEMAP_FILE } from './SitemapManager.js';
 import FileResource from './resources/File.js';
+import Resource from './resources/Resource.js';
 
 /**
  * @typedef robotsCrawler
@@ -32,6 +34,7 @@ export interface RobotsConfiguration {
     rules: RobotsRule[]
 }
 
+const ROBOTS_FILE = 'robots.txt';
 /**
  * Build robots.txt file
  * @param {import('../config/configurator').Configuration} configuration The configuration
@@ -44,26 +47,23 @@ export default class RobotsManager extends PathManager {
      * @param {import('../config/configurator').Configuration} configuration 
      * @returns {Promise<string[]>}
      */
-    getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<ResourceMap> {
-        const path: string = 'robots.txt';
-        return Promise.resolve(Object.fromEntries([[path, new FileResource(path)]]));
+    getManagedPaths(configuration: Configuration): Promise<Resource[]> {
+        return Promise.resolve([new FileResource(ROBOTS_FILE, build.bind(null, configuration))]);
     }
+}
 
-    /**
-     * Builds the content of the given file
-     * @param configuration 
-     * @param _file 
-     * @param _options 
-     */
-    async build(configuration: Configuration, file: FileResource, _options: any) {
-        if (file.path != 'robots.txt') throw new Error("Not implemented");
-        let content = configuration.robots.rules
-            .map(rule => 'User-agent: ' + rule.userAgent + '\n' +
-                rule.crawlers.map(crawler => `${crawler.type}: ${crawler.path}`).join('\n') +
-                '\n\n'
-            ).join('');
+/**
+ * Builds the content of the given file
+ * @param configuration 
+ * @param _options 
+ */
+function build(configuration: Configuration, _options: any) {
+    let content = configuration.robots.rules
+        .map(rule => 'User-agent: ' + rule.userAgent + '\n' +
+            rule.crawlers.map(crawler => `${crawler.type}: ${crawler.path}`).join('\n') +
+            '\n\n'
+        ).join('');
 
-        content += 'Sitemap: !BASE_URL!/sitemap.txt\n';
-        return Promise.resolve(content);
-    }
+    content += `Sitemap: !BASE_URL!/${SITEMAP_FILE}\n`;
+    return Promise.resolve(content);
 }

@@ -1,13 +1,13 @@
-import { extractPathLanguage, init } from './i18n.js'
-import PathManager, { ResourceMap } from './PathManager.js'
-import Page from './resources/Page.js'
-import pugPageLister from './pugPageLister.js'
-import pugPageRenderer from './pugPageRenderer.js'
-import { loadProperties } from './properties.js'
-import i18next from 'i18next';
+import i18next from 'i18next'
 import { Configuration } from '../config/configurator.js'
+import PathManager from './PathManager.js'
+import { init } from './i18n.js'
+import { loadProperties } from './properties.js'
+import pugPageLister from './pugPageLister.js'
+import Page from './resources/Page.js'
+import PageLangRedirection from './resources/PageLangRedirection.js'
+import Resource from './resources/Resource.js'
 import TranslatedPage from './resources/TranslatedPage.js'
-import Redirection from './resources/Redirection.js'
 
 const X_DEFAULT = 'x-default';
 
@@ -16,16 +16,7 @@ const X_DEFAULT = 'x-default';
  * @param configuration The configuration
  * @returns 
  */
-export type pageLister = (configuration: Configuration) => Promise<Page[]>;
-
-/**
- * @callback pageRenderer Render a website page
- * @param configuration The configuration
- * @param page The page to render
- * @param renderOptions The page render options
- * @returns
- */
-export type pageRenderer = (configuration: Configuration, page: Page, renderOptions: RenderOptions) => Promise<string>;
+export type PageLister = (configuration: Configuration) => Promise<Page[]>;
 
 /**
  * The page render options
@@ -36,11 +27,12 @@ export type pageRenderer = (configuration: Configuration, page: Page, renderOpti
  * @property {string[]} languages The website languages
  */
 export interface RenderOptions {
-    pages: Page[];
-    pageMap: { [key: string]: Page };
-    currentPage: { path: string, href: string, basicPath: string };
-    language: string;
-    languages: string[];
+    paths: string[];
+    pages?: Page[];
+    pageMap?: { [key: string]: Page };
+    currentPage?: Page;
+    language?: string;
+    languages?: string[];
 }
 
 export default class PageManager extends PathManager {
@@ -49,17 +41,14 @@ export default class PageManager extends PathManager {
      */
     #_pages: Page[];
 
-    pageLister: pageLister;
-    pageRenderer: pageRenderer;
+    pageLister: PageLister;
 
     /**
-     * @param {pageLister} pageLister The website page lister
-     * @param {pageRenderer} pageRenderer The website page renderer
+     * @param {PageLister} pageLister The website page lister
      */
-    constructor(pageLister: pageLister = pugPageLister, pageRenderer: pageRenderer = pugPageRenderer) {
+    constructor(pageLister: PageLister = pugPageLister) {
         super();
         this.pageLister = pageLister;
-        this.pageRenderer = pageRenderer;
     }
 
     /**
@@ -67,7 +56,7 @@ export default class PageManager extends PathManager {
      * @param {import('../config/configurator').Configuration} configuration 
      * @returns {Promise<string[]>}
      */
-    async getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<ResourceMap> {
+    async getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<Resource[]> {
         await init(configuration);
         this.#_pages = await this.pageLister(configuration);
 
@@ -77,16 +66,16 @@ export default class PageManager extends PathManager {
             const languages = configuration.enableDefaultLanquage ? configuration.languages : [X_DEFAULT, ...configuration.languages];
             return mapPagesResources(this.#_pages, configuration.translationStrategy, defaultLanguage, languages);
         }
-        return Object.fromEntries(this.#_pages.map(p => [p.path, p]));
+        return this.#_pages;
     }
 
     /**
      * Builds the content of the given file
-     * @param {import('../config/configurator').Configuration} configuration 
-     * @param {string} path 
-     * @param {*} options 
+     * @param configuration 
+     * @param page
+     * @param options 
      */
-    async build(configuration: import('../config/configurator').Configuration, page: Page, options: any): Promise<string> {
+    async build(configuration: Configuration, page: Page, options: any): Promise<string> {
         let language = configuration.languages[0];
         if (page instanceof TranslatedPage) {
             language = page.lang;
@@ -97,7 +86,6 @@ export default class PageManager extends PathManager {
                 .filter(p => p.path.endsWith('.html'))
                 .map(p => [p.href, p])
         );
-        // const page = this.#_pages.find(p => p.path == pathLanguage.path);
         const properties = await loadProperties(configuration.propertiesPath);
         const basicPath = page.path.replace(/[.]html$/, '');
         options = {
@@ -116,26 +104,26 @@ export default class PageManager extends PathManager {
         await i18next.changeLanguage(language);
         i18next.setDefaultNamespace(basicPath);
 
-        return await this.pageRenderer(configuration, page, options);
+        return await page.render(configuration, options);
     }
 }
 
-function mapPagesResources(pages: Page[], strategy: string, defaultLanguage: string, languages: string[]): ResourceMap {
-    return Object.fromEntries(languages.map(lang => {
+function mapPagesResources(pages: Page[], strategy: string, defaultLanguage: string, languages: string[]): Resource[] {
+    return languages.map(lang => {
         if (lang === defaultLanguage) {
-            return pages.map(p => {
-                const resource = lang === X_DEFAULT ? new Redirection(p.path) : new TranslatedPage(p.path, p, lang);
-                return [p.path, resource]
-            });
+            return pages.map(p =>
+                lang === X_DEFAULT
+                    ? new PageLangRedirection(p.path, p)
+                    : new TranslatedPage(p.path, p, lang)
+            );
         }
-        return pages.map(p => {
-            const path = getPathForLang(p.path, lang, strategy);
-            return [path, new TranslatedPage(path, p, lang)]
-        });
-    }).flat(1));
+        return pages.map(p =>
+            new TranslatedPage(getPathForLang(p.path, lang, strategy), p, lang)
+        );
+    }).flat(1);
 }
 
-function getPathForLang(path: string, lang: string, strategy: string): string {
+export function getPathForLang(path: string, lang: string, strategy: string): string {
     if (strategy === 'subdir') return `${lang}/${path}`;
     return path.replace(/(^.*[^/]+)([.][a-z0-9]+)$/, `$1.${lang}$2`);
 }

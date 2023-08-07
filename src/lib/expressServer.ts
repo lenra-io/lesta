@@ -1,7 +1,10 @@
 import express, { Express, Request, Response } from 'express';
 import { join } from 'path';
-import PathManager from './PathManager.js'
-import { Configuration } from '../config/configurator.js'
+import { Configuration } from '../config/configurator.js';
+import PathManager from './PathManager.js';
+import { ContentResource } from './resources/ContentResource.js';
+import PageLangRedirection from './resources/PageLangRedirection.js';
+import { getPathForLang } from './PageManager.js';
 
 /**
  * Serve a website using express
@@ -25,12 +28,12 @@ export default function expressServer(configuration: Configuration, managers: Pa
             const paths: string[] = [];
             let resource;
             for (const m of managers) {
-                const resourceMap = await m.getManagedPaths(configuration);
-                const managedPaths = Object.keys(resourceMap);
+                const resources = await m.getManagedPaths(configuration);
+                const managedPaths = resources.map(r => r.path);
                 if (managedPaths.includes(path)) {
-                    if (manager != null) throw new Error(`The '${path}' path have been found in two managers: ${manager} and ${m}`);
+                    if (manager != null) throw new Error(`The '${path}' path have been found in two resources: ${manager} and ${m}`);
                     manager = m;
-                    resource = resourceMap[path];
+                    resource = resources.find(r => r.path === path);
                 }
                 paths.push(...managedPaths);
             }
@@ -38,15 +41,27 @@ export default function expressServer(configuration: Configuration, managers: Pa
                 res.sendStatus(404);
                 return;
             }
-            let content = await manager.build(configuration, resource, { paths });
-            // Replace server variables
-            const baseUrl = `${req.protocol}://${req.headers.host}`;
-            const currentUrl = `${baseUrl}${req.originalUrl}`;
-            res.send(content
-                .replace(/!DOMAIN!/g, req.headers.host)
-                .replace(/!BASE_URL!/g, baseUrl)
-                .replace(/!CURRENT_URL!/g, currentUrl)
-                .replace(/!IMAGE_URL!/g, `${currentUrl}.jpg`));
+            if (resource instanceof ContentResource) {
+                let content = await resource.render(configuration, { paths });
+                // Replace server variables
+                const baseUrl = `${req.protocol}://${req.headers.host}`;
+                const currentUrl = `${baseUrl}${req.originalUrl}`;
+                res.send(content
+                    .replace(/!DOMAIN!/g, req.headers.host)
+                    .replace(/!BASE_URL!/g, baseUrl)
+                    .replace(/!CURRENT_URL!/g, currentUrl)
+                    .replace(/!IMAGE_URL!/g, `${currentUrl}.jpg`));
+            }
+            else if (resource instanceof PageLangRedirection) {
+                // determine user preferred language
+                const lang = req.acceptsLanguages(configuration.languages);
+                const translatedPath = getPathForLang(resource.path, lang, configuration.translationStrategy);
+                console.log("Redirecting to", translatedPath);
+                res.redirect(translatedPath);
+            }
+            else {
+                throw new Error(`Unknown resource type: ${resource}`);
+            }
         })
 
         app.listen(configuration.port, '0.0.0.0', () => {

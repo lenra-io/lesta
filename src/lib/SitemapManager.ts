@@ -1,6 +1,11 @@
 import { Configuration } from '../config/configurator';
-import PathManager, { ResourceMap } from './PathManager.js'
+import { RenderOptions } from './PageManager.js';
+import PathManager from './PathManager.js';
+import { contentRenderer } from './resources/ContentResource.js';
 import FileResource from './resources/File.js';
+import Resource from './resources/Resource.js';
+
+export const SITEMAP_FILE = 'sitemap.txt';
 
 /**
  * Build sitemap files
@@ -14,23 +19,23 @@ export default class SitemapManager extends PathManager {
      * @param {import('../config/configurator').Configuration} configuration 
      * @returns {Promise<string[]>}
      */
-    getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<ResourceMap> {
-        const path: string = 'sitemap.txt'
-        return Promise.resolve(Object.fromEntries([[path, new FileResource(path)]]));
+    getManagedPaths(configuration: import('../config/configurator').Configuration): Promise<Resource[]> {
+        return Promise.resolve([new FileResource(SITEMAP_FILE, build.bind(null, configuration))]);
     }
+}
 
-    /**
-     * Builds the content of the given file
-     */
-    build(configuration: Configuration, file: FileResource, { paths }: { paths: string[] }): Promise<string> {
-        if (file.path != 'sitemap.txt') throw new Error("Not implemented");
-        return Promise.resolve(
-            paths
-                // TODO: manage disabled content
-                .filter(path => path.endsWith('.html'))
-                .map(path => path.replace(/(^|\/)index.html$/, "$1"))
-                .map(path => `!BASE_URL!/${path}\n`)
-                .join('')
-        );
-    }
+/**
+ * Builds the content of the given file
+ * @param configuration 
+ * @param _options 
+ */
+function build(configuration: Configuration, options: RenderOptions) {
+    return Promise.resolve(
+        options.paths
+            // TODO: manage disabled content
+            .filter(path => path.endsWith('.html'))
+            .map(path => path.replace(/(^|\/)index.html$/, "$1"))
+            .map(path => `!BASE_URL!/${path}\n`)
+            .join('')
+    );
 }

@@ -6,6 +6,8 @@ import { minify } from 'minify';
 import { cssMinify } from './cssMinify.js'
 import { getFilesRecursively, mergeDeep } from '../lib/utils.js'
 import PathManager from "./PathManager.js"
+import { ContentResource } from "./resources/ContentResource.js";
+import PageLangRedirection from "./resources/PageLangRedirection.js";
 
 export interface NginxConfiguration {
   rewriteRules: RewriteRule[];
@@ -62,24 +64,32 @@ export default async function nginxBuilder(configuration: Configuration, manager
   const managerResourceMap = await Promise.all(
     managers.map(async manager => ({
       manager,
-      resourceMap: await manager.getManagedPaths(configuration)
+      resources: await manager.getManagedPaths(configuration)
     }))
   );
-  const paths = managerResourceMap.flatMap(({ resourceMap }) => Object.keys(resourceMap));
+  const paths = managerResourceMap.flatMap(({ resources }) => resources.map(resource => resource.path));
   const options = { paths };
 
   // Build the managers paths
   promises.push.apply(promises,
-    managerResourceMap.flatMap(({ manager, resourceMap }) =>
-      Object.entries(resourceMap)
-        .map(([path, resource]) => {
-          const destPath = join(wwwPath, path);
+    managerResourceMap.flatMap(({ manager, resources }) =>
+      resources
+        .map(resource => {
+          const destPath = join(wwwPath, resource.path);
           mkdirSync(dirname(destPath), { recursive: true });
-          return manager.build(configuration, resource, options)
-            .then(content =>
-              path.endsWith('.html') ? minify.html(content) : content
-            )
-            .then(content => writeFile(destPath, content))
+          if (resource instanceof ContentResource) {
+            return resource.render(configuration, options)
+              .then(content =>
+                resource.path.endsWith('.html') ? minify.html(content) : content
+              )
+              .then(content => writeFile(destPath, content))
+          }
+          else if (resource instanceof PageLangRedirection) {
+            // TODO: add redirection
+          }
+          else {
+            throw new Error(`Unknown resource type: ${resource}`);
+          }
         })
     )
   );

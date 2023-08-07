@@ -1,9 +1,12 @@
-import { getFilesRecursively } from './utils.js'
-import Page from './resources/Page.js'
-import { join, relative } from 'path';
-import { readFileSync } from 'fs';
 import fm from 'front-matter';
-import { Configuration } from '../config/configurator.js'
+import { existsSync, readFileSync } from 'fs';
+import i18next from 'i18next';
+import { join, relative } from 'path';
+import * as pug from 'pug';
+import { Configuration } from '../config/configurator.js';
+import { RenderOptions } from './PageManager.js';
+import Page from './resources/Page.js';
+import { getFilesRecursively, mergeDeep } from './utils.js';
 
 const languageFileRegex = /^(([a-z]{2})\/(.+)|(.+)[.]([a-z]{2}))([.]pug)$/;
 
@@ -39,7 +42,38 @@ export default async function pugPageLister(configuration: Configuration): Promi
                 langViews[file] || {},
                 {
                     ...fmResult.attributes
-                }
+                },
+                pugPageRenderer
             )
         })
+}
+
+
+/**
+ * Render a pug website page
+ * @param configuration The configuration
+ * @param page The page
+ * @param renderOptions The page render options. Not used
+ * @returns
+ */
+function pugPageRenderer(page: Page, configuration: Configuration, renderOptions: RenderOptions): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const viewsDirPath = join(process.cwd(), configuration.viewsDir);
+        const sourceFile = join(viewsDirPath, page.view);
+        const fmResult = fm(readFileSync(sourceFile, 'utf8'));
+        const options = mergeDeep(
+            {
+                filename: sourceFile
+            },
+            renderOptions,
+            {
+                fileExists: existsSync,
+                t: i18next.t
+            }
+        );
+        pug.render(fmResult.body, options, (err, html) => {
+            if (err) reject(err);
+            else resolve(html);
+        });
+    });
 }

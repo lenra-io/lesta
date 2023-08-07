@@ -5,7 +5,6 @@ export { default as PageManager } from './PageManager';
 export { default as RobotsManager } from './RobotsManager';
 export { default as SitemapManager } from './SitemapManager';
 export { default as pugPageLister } from './pugPageLister';
-export { default as pugPageRenderer } from './pugPageRenderer';
 export { default as expressServer } from './expressServer';
 export { default as nginxBuilder } from './nginxBuilder';
 export * as i18n from './i18n';
